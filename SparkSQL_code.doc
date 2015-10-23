@@ -59,6 +59,8 @@ sex_grp = udf(lambda x: "2" if x == "female" else "1", StringType())
 gender_df.withColumn('sex',sex_grp(gender_df['gender'])).show()
 
 #Performance tuning in SparkSQL
-sqlContext.cacheTable('gender_df')
+sqlContext.cacheTable('gender_tbl')
+sqlContext.sql("select gender from gender_tbl").show()
+
 sqlContext.uncacheTable('gender_df')
 sqlContext.setConf('spark.sql.shuffle.partitions','200')

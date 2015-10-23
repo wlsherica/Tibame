@@ -1,0 +1,64 @@
+# Author: Erica Li
+# Created date: 2015-10
+# Objectives: pyspark code for SparkSQL class
+# Note: you have to replace the path of SPARK_HOME on your own
+
+#Input - connected with local system
+cat /usr/local/spark/1.4.1/examples/src/main/resources/people.json
+
+SPARK_HOME = "file:///usr/local/spark/1.4.1"
+filepath_local = SPARK_HOME+"/examples/src/main/resources/people.json"
+sqlContext.read.json(filepath_local).show()
+
+#Input - connected with HDFS
+hadoop fs -text /people.txt
+
+filepath_hdfs = "/people.json"
+sqlContext.read.json(filepath_hdfs).show()
+
+#Input - connected with Hive
+cd /usr/local/spark/1.4.1/conf
+export SPARK_CLASSPATH=$HIVE_HOME/lib
+
+sqlContext.sql("show tables").show()
+df1 = sqlContext.table("beverage")
+
+#Output
+from pyspark.sql import Row
+gender = sc.parallelize([Row(name="Gordon",gender="male"),
+                     Row(name="Katrina",gender="female"),
+                     Row(name="Graham",gender="male")])
+
+gender_df = sqlContext.createDataFrame(gender)
+gender_df.saveAsTable("gender")
+gender_df.save(path="file:///home/ubuntu/spark_sql/gender_json”,source="json",mode=“overwrite”)
+
+#Dataframe operations
+gender_df.show()
+gender_df.printSchema()
+gender_df.select("name").show()
+gender_df.filter(gender_df.gender == "female").show()
+gender_df.groupBy("name").count().show()
+
+gender_df.describe("gender")
+from pyspark.sql.functions import randn  gender_df2 = gender_df.withColumn('var1', randn(seed=123)) 
+bev_df = sqlContext.table("beverage")
+
+chef_df = bev_df.join(gender_df2, bev_df.name == gender_df2.name).select(bev_df.name, bev_df.beverage, gender_df2.gender, gender_df2.var1)
+ chef_df.describe('var1').show()
+
+#Create your first user defined functions
+gender_df.registerTempTable("gender_tbl")
+sqlContext.registerFunction('strLength', lambda x: len(x))
+sqlContext.sql("SELECT name, strLength(name) as name_len FROM gender_tbl").show()
+
+from pyspark.sql.types import *
+from pyspark.sql.functions import *
+
+sex_grp = udf(lambda x: "2" if x == "female" else "1", StringType())
+gender_df.withColumn('sex',sex_grp(gender_df['gender'])).show()
+
+#Performance tuning in SparkSQL
+sqlContext.cacheTable('gender_df')
+sqlContext.uncacheTable('gender_df')
+sqlContext.setConf('spark.sql.shuffle.partitions','200')

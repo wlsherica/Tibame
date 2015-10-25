@@ -39,7 +39,7 @@ gender = sc.parallelize([Row(name="Gordon",gender="male"),
 
 gender_df = sqlContext.createDataFrame(gender)
 gender_df.saveAsTable("gender")
-gender_df.save(path="file:///home/ubuntu/spark_sql/gender_json”,source="json",mode=“overwrite”)
+gender_df.save(path="file:///home/ubuntu/spark_sql/gender_json",source="json",mode="overwrite")
 
 #Dataframe operations
 gender_df.show()

@@ -10,6 +10,14 @@ SPARK_HOME = "file:///usr/local/spark/1.4.1"
 filepath_local = SPARK_HOME+"/examples/src/main/resources/people.json"
 sqlContext.read.json(filepath_local).show()
 
+cat /usr/local/spark/1.4.1/examples/src/main/resources/people.txt
+from pyspark.sql import Row
+lines = sc.textFile(SPARK_HOME+"/examples/src/main/resources/people.txt")
+parts = lines.map(lambda l: l.split(","))
+people = parts.map(lambda p: Row(name=p[0], age=int(p[1])))
+peopledf = sqlContext.createDataFrame(people)
+peopledf.registerTempTable("people")
+
 #Input - connected with HDFS
 hadoop fs -text /people.txt
 

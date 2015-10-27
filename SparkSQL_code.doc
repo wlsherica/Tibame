@@ -19,7 +19,8 @@ peopledf = sqlContext.createDataFrame(people)
 peopledf.registerTempTable("people")
 
 #Input - connected with HDFS
-hadoop fs -text /people.txt
+hadoop fs -put /usr/local/spark/1.4.1/examples/src/main/resources/people.json /people.json
+hadoop fs -text /people.json
 
 filepath_hdfs = "/people.json"
 sqlContext.read.json(filepath_hdfs).show()

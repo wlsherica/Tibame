@@ -1,2 +1,2 @@
 # Tibame
-Materials for Tibame class
+Materials for Tibame SparkSQL class.
